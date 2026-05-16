@@ -19,33 +19,40 @@ function Login() {
 
     const navigate = useNavigate();
 
-    const getPasswordStrength = () => {
-        let strength = 0;
+    // const getPasswordStrength = () => {
+    //     let strength = 0;
 
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
+    //     if (password.length >= 8) strength++;
+    //     if (/[A-Z]/.test(password)) strength++;
+    //     if (/[0-9]/.test(password)) strength++;
+    //     if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-        return strength;
-    };
+    //     return strength;
+    // };
 
-   
-    const handleRegister = async () => {
+
+    const handleLogin = async () => {
         try {
-          
+
 
             const response = await axios.post(
                 "http://localhost:5000/api/auth/login",
                 {
-                    fullName,
+
                     email,
                     password,
                 }
             );
 
             toast.success(response.data.message);
+
+            localStorage.setItem("token", response.data.token);
+
+            console.log("Navigating now");
+
+            navigate("/dashboard");
         } catch (error) {
+            console.log(error);
             toast.error(
                 error.response?.data?.message || "Something went wrong"
             );
@@ -152,57 +159,61 @@ function Login() {
                         </button>
                     </div>
 
-                   
-                    </div>
 
-                    <div className="flex justify-end -mt-2 mb-2">
-    <span className="text-sm text-[#2f855a] cursor-pointer hover:underline">
-        Forgot Password?
-    </span>
-</div>
-                    <button
-                        onClick={handleRegister}
-                       className="w-full cursor-pointer mb-4 bg-gradient-to-r from-[#95d84f] to-[#20c7a1] hover:scale-[1.01] text-white font-semibold py-4 rounded-2xl transition-all shadow-md shadow-[0_10px_25px_rgba(34,197,94,0.25)]"
-                    >
-                        Login
-                    </button>
-
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="h-[1px] bg-slate-300 flex-1"></div>
-                        <span className="text-slate-400 text-sm">
-                            continue with
-                        </span>
-                        <div className="h-[1px] bg-slate-300 flex-1"></div>
-                    </div>
-
-                    <button
-                        onClick={async () => {
-                            try {
-                                const result = await signInWithPopup(auth, provider);
-
-                                toast.success(`Welcome ${result.user.displayName}`);
-                            } catch (error) {
-                                if (error.code !== "auth/cancelled-popup-request") {
-                                    toast.error("Google sign in failed");
-                                }
-                            }
-                        }}
-                        className="w-full cursor-pointer border border-[#e3e9e3] bg-white py-4 rounded-2xl font-medium hover:bg-[#f8fbf8] hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-slate-700 shadow-sm"
-                    >
-                        <FcGoogle size={24} />
-                        Continue with Google
-                    </button>
-                    <p className="text-center text-slate-500 mt-5">
-                        Don't have an account?{" "}
-                        <span
-                            onClick={() => navigate("/")}
-                            className="text-[#2f855a] font-semibold cursor-pointer"
-                        >
-                            Signup
-                        </span>
-                    </p>
                 </div>
+
+                <div className="flex justify-end -mt-2 mb-2">
+                    <span
+                        onClick={() => navigate("/forgot-password")}
+                        className="text-sm text-[#2f855a] cursor-pointer hover:underline"
+                    >
+                        Forgot Password?
+                    </span>
+                </div>
+                <button
+                    onClick={handleLogin}
+                    className="w-full cursor-pointer mb-4 bg-gradient-to-r from-[#95d84f] to-[#20c7a1] hover:scale-[1.01] text-white font-semibold py-4 rounded-2xl transition-all shadow-md shadow-[0_10px_25px_rgba(34,197,94,0.25)]"
+                >
+                    Login
+                </button>
+
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="h-[1px] bg-slate-300 flex-1"></div>
+                    <span className="text-slate-400 text-sm">
+                        continue with
+                    </span>
+                    <div className="h-[1px] bg-slate-300 flex-1"></div>
+                </div>
+
+                <button
+                    onClick={async () => {
+                        try {
+                            const result = await signInWithPopup(auth, provider);
+
+                            toast.success(`Welcome ${result.user.displayName}`);
+                            navigate("/dashboard");
+                        } catch (error) {
+                            if (error.code !== "auth/cancelled-popup-request") {
+                                toast.error("Google sign in failed");
+                            }
+                        }
+                    }}
+                    className="w-full cursor-pointer border border-[#e3e9e3] bg-white py-4 rounded-2xl font-medium hover:bg-[#f8fbf8] hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-slate-700 shadow-sm"
+                >
+                    <FcGoogle size={24} />
+                    Continue with Google
+                </button>
+                <p className="text-center text-slate-500 mt-5">
+                    Don't have an account?{" "}
+                    <span
+                        onClick={() => navigate("/")}
+                        className="text-[#2f855a] font-semibold cursor-pointer"
+                    >
+                        Signup
+                    </span>
+                </p>
             </div>
+        </div>
         // </div>
     );
 }
