@@ -67,6 +67,8 @@ function Signup() {
             );
 
             toast.success(response.data.message);
+
+            navigate("/dashboard");
         } catch (error) {
             toast.error(
                 error.response?.data?.message || "Something went wrong"
@@ -249,9 +251,9 @@ function Signup() {
                     </div>
 
                     <button
-                        onClick={handleRegister}
-                        className="bg-gradient-to-r from-[#95d84f] to-[#20c7a1] hover:scale-[1.01] text-white font-semibold py-4 rounded-2xl transition-all shadow-md shadow-[0_10px_25px_rgba(34,197,94,0.25)]"
-                    >
+    onClick={handleRegister}
+    className="bg-gradient-to-r from-[#95d84f] to-[#20c7a1] hover:scale-[1.01] text-white font-semibold py-4 rounded-2xl transition-all shadow-md shadow-[0_10px_25px_rgba(34,197,94,0.25)] cursor-pointer"
+>
                         Create Account
                     </button>
 
@@ -269,13 +271,14 @@ function Signup() {
                                 const result = await signInWithPopup(auth, provider);
 
                                 toast.success(`Welcome ${result.user.displayName}`);
+                                navigate("/dashboard");
                             } catch (error) {
                                 if (error.code !== "auth/cancelled-popup-request") {
                                     toast.error("Google sign in failed");
                                 }
                             }
                         }}
-                        className="border border-[#e3e9e3] bg-white py-4 rounded-xl font-medium hover:bg-[#f8fbf8] hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-slate-700 shadow-sm"
+                        className="border border-[#e3e9e3] bg-white py-4 rounded-xl font-medium hover:bg-[#f8fbf8] hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-slate-700 shadow-sm cursor-pointer"
                     >
                         <FcGoogle size={24} />
                         Continue with Google
