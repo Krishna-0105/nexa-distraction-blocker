@@ -43,10 +43,21 @@ function Login() {
                     password,
                 }
             );
-
+            console.log(response.data);
             toast.success(response.data.message);
 
             localStorage.setItem("token", response.data.token);
+            // localStorage.setItem(
+            //     "user",
+            //     JSON.stringify({
+            //         name: response.data.user.fullName,
+            //     })
+            // );
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(response.data.user)
+            );
 
             console.log("Navigating now");
 
@@ -189,8 +200,26 @@ function Login() {
                     onClick={async () => {
                         try {
                             const result = await signInWithPopup(auth, provider);
+                            console.log(result.user);
 
-                            toast.success(`Welcome ${result.user.displayName}`);
+                            const response = await axios.post(
+                                "http://localhost:5000/api/auth/google",
+                                {
+                                    fullName: result.user.displayName,
+                                    email: result.user.email,
+                                    uid: result.user.uid,
+                                }
+                            );
+
+                            localStorage.setItem("token", response.data.token);
+
+                            localStorage.setItem(
+                                "user",
+                                JSON.stringify(response.data.user)
+                            );
+
+                            toast.success(`Welcome ${response.data.user.fullName}`);
+
                             navigate("/dashboard");
                         } catch (error) {
                             if (error.code !== "auth/cancelled-popup-request") {
