@@ -13,6 +13,8 @@ import {
   Gift,
   BarChart3,
   Settings,
+  Home,
+  Menu,
 } from "lucide-react";
 import { getDeviceType } from "../utils/device";
 // import toast from "react-hot-toast";
@@ -47,12 +49,12 @@ function Dashboard() {
   //   });
 
   // }, []);
-  const user = JSON.parse(localStorage.getItem("user"));
-  console.log("Current User from LocalStorage:", user);
-  const userName =
-    user?.fullName ||
-    user?.name ||
-    "User";
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // console.log("Current User from LocalStorage:", user);
+  // const userName =
+  //   user?.fullName ||
+  //   user?.name ||
+  //   "User";
   const hour = new Date().getHours();
 
   let greetingText = "";
@@ -131,9 +133,57 @@ function Dashboard() {
       icon: Settings,
     },
   ];
+  const mobileNavItems = [
+  {
+    name: "Home",
+    icon: Home,
+  },
+  {
+    name: "Focus",
+    icon: Target,
+  },
+  {
+    name: "Sessions",
+    icon: Calendar,
+  },
+  {
+    name: "Blocks",
+    icon: Shield,
+  },
+  {
+    name: "More",
+    icon: Menu,
+  },
+];
+const blockedSites = [
+  {
+    name: "YouTube",
+    domain: "youtube.com",
+    enabled: true,
+    icon: "YT",
+  },
+  {
+    name: "Instagram",
+    domain: "instagram.com",
+    enabled: true,
+    icon: "IG",
+  },
+  {
+    name: "Twitter",
+    domain: "twitter.com",
+    enabled: false,
+    icon: "X",
+  },
+  {
+    name: "Reddit",
+    domain: "reddit.com",
+    enabled: true,
+    icon: "R",
+  },
+];
   return (
     <div
-      className={`min-h-screen flex transition-all duration-300 ${theme === "dark"
+  className={`h-screen overflow-hidden flex transition-all duration-300 ${theme === "dark"
           ? "bg-[#0f172a]"
           : "bg-[#f4f7f5]"
         }`}
@@ -141,15 +191,16 @@ function Dashboard() {
 
       {/* Sidebar - Desktop Only */}
       <aside
-        className={`hidden md:flex w-[260px] flex-col justify-between p-6 border-r transition-all duration-300 ${theme === "dark"
+        
+  className={`hidden md:flex w-[260px] h-screen flex-col p-6 border-r transition-all duration-300 ${theme === "dark"
             ? "bg-[#111827] border-[#1f2937]"
             : "bg-white border-[#e5ece7]"
           }`}
       >
 
-        <div>
+        <div className="flex-1 overflow-y-auto pr-2">
 
-          {/* Logo */}
+  {/* Logo */}
           <div className="flex items-center gap-3 mb-10">
             <span className="text-4xl">🌿</span>
 
@@ -217,8 +268,8 @@ function Dashboard() {
         </div>
 
         {/* Bottom User Section */}
-        <div
-          className={`border rounded-2xl p-4 transition-all duration-300 ${theme === "dark"
+<div
+  className={`mt-4 border rounded-2xl p-4 transition-all duration-300 ${theme === "dark"
               ? "bg-[#111827] border-[#1f2937]"
               : "bg-[#f8fbf9] border-[#e7efea]"
             }`}
@@ -297,7 +348,7 @@ function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+      <main className="flex-1 h-screen overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
 
         {/* Mobile Top Bar */}
         <div className="md:hidden flex items-center justify-between mb-6">
@@ -315,9 +366,37 @@ function Dashboard() {
             </h1>
           </div>
 
-          <p className="text-sm font-medium text-slate-500">
-            {deviceLabel}
-          </p>
+        <div
+  className={`flex items-center p-1 rounded-xl border transition-all ${
+    theme === "dark"
+      ? "bg-[#111827] border-[#1f2937]"
+      : "bg-white border-[#e5ece7]"
+  }`}
+>
+
+  <button
+    onClick={() => setTheme("light")}
+    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+      theme === "light"
+        ? "bg-[#f3f7f4] text-[#1f2937]"
+        : "text-slate-400"
+    }`}
+  >
+    Light
+  </button>
+
+  <button
+    onClick={() => setTheme("dark")}
+    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+      theme === "dark"
+        ? "bg-[#1f2937] text-white"
+        : "text-slate-400"
+    }`}
+  >
+    Dark
+  </button>
+
+</div>
 
         </div>
 
@@ -337,7 +416,7 @@ function Dashboard() {
                   }`}
               >
 
-                {greetingText}, {userName} {randomEmoji}
+                {greetingText}   {randomEmoji}
 
               </h1>
 
@@ -483,10 +562,124 @@ function Dashboard() {
           </div>
 
         </div>
+{/* Active Blocks Section */}
+<div className="mt-6 grid grid-cols-1 xl:grid-cols-2 gap-5">
 
-      </main>
+  {/* Active Websites */}
+  <div
+    className={`rounded-3xl border p-5 shadow-sm transition-all ${
+      theme === "dark"
+        ? "bg-[#111827] border-[#1f2937]"
+        : "bg-white border-[#e6ece8]"
+    }`}
+  >
+
+    <div className="flex items-center justify-between">
+
+      <h2
+        className={`text-lg font-semibold ${
+          theme === "dark"
+            ? "text-white"
+            : "text-[#1f2937]"
+        }`}
+      >
+        Active Blocks
+      </h2>
+
+      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full">
+        5 Active
+      </span>
 
     </div>
+
+    <div className="mt-5 flex flex-col gap-4">
+
+      {blockedSites.map((site, index) => {
+  const Icon = site.icon;
+
+  return (
+        <div
+          key={index}
+          className={`flex items-center justify-between rounded-2xl px-4 py-3 ${
+            theme === "dark"
+              ? "bg-[#0f172a]"
+              : "bg-[#f8fbf9]"
+          }`}
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div
+  className={`w-9 h-9 rounded-xl flex items-center justify-center font-semibold text-sm ${
+    theme === "dark"
+      ? "bg-[#1f2937] text-white"
+      : "bg-[#f3f7f4] text-[#1f2937]"
+  }`}
+>
+  {site.icon}
+</div>
+
+            <p
+              className={`font-medium ${
+                theme === "dark"
+                  ? "text-white"
+                  : "text-[#1f2937]"
+              }`}
+            >
+              {site.name}
+            </p>
+
+          </div>
+
+          <span className="text-xs text-[#22c55e] font-semibold">
+            Blocked
+          </span>
+
+        </div>
+      );
+    })}
+
+    </div>
+
+  </div>
+
+</div>
+      </main>
+{/* Mobile Bottom Navigation */}
+<div
+  className={`md:hidden fixed bottom-0 left-0 right-0 border-t px-2 py-2 flex items-center justify-around z-50 ${
+    theme === "dark"
+      ? "bg-[#111827] border-[#1f2937]"
+      : "bg-white border-[#e5ece7]"
+  }`}
+>
+  {mobileNavItems.map((item, index) => {
+    const Icon = item.icon;
+
+    return (
+      <button
+        key={index}
+        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${
+  item.name === "Home"
+    ? theme === "dark"
+      ? "bg-[#1f2937] text-[#34d399]"
+      : "bg-[#e8f5ee] text-[#119b61]"
+    : theme === "dark"
+    ? "text-slate-400"
+    : "text-slate-500"
+}`}
+      >
+        <Icon size={22} />
+
+        <span className="text-[11px] font-medium">
+          {item.name}
+        </span>
+      </button>
+    );
+  })}
+</div>
+    </div>
+    
   );
 }
 
