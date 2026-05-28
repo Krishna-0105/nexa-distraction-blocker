@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PomodoroCard from "../dashboard/PomodoroCard";
 import SessionCategories from "../dashboard/SessionCategories";
 import SessionSetupModal from "../dashboard/SessionSetupModal";
+import usePomodoroTimer from "../hooks/usePomodoroTimer";
 import {
   Coins,
   Monitor,
@@ -20,6 +21,7 @@ import {
   Menu,
 } from "lucide-react";
 import { getDeviceType } from "../utils/device";
+
 // import toast from "react-hot-toast";
 
 function Dashboard() {
@@ -30,6 +32,9 @@ function Dashboard() {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [focusTime, setFocusTime] = useState(25);
+
+const [customHours, setCustomHours] = useState(0);
+const [customMinutes, setCustomMinutes] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
   const [mode, setMode] = useState("focus");
   const [sessionState, setSessionState] = useState("idle");
@@ -37,6 +42,7 @@ const [stopAttempts, setStopAttempts] = useState(0);
 const [showStopModal, setShowStopModal] = useState(false);
 const [showSessionModal, setShowSessionModal] = useState(false);
 const [selectedCategory, setSelectedCategory] = useState("Study");
+const [showCustomFocusInput, setShowCustomFocusInput] = useState(false);
 const stopMessages = [
   "You were building momentum. Continue a little longer.",
   "Discipline is staying focused when distraction feels easier.",
@@ -57,58 +63,30 @@ const stopMessages = [
   }, []);
   useEffect(() => {
 
-    let timer;
+  const savedSession = localStorage.getItem("nexa-session");
 
-    if (sessionState === "running") {
+  if (savedSession) {
 
-      timer = setInterval(() => {
+    const parsedSession = JSON.parse(savedSession);
 
-        if (seconds > 0) {
-          setSeconds(seconds - 1);
-        }
+    setMinutes(parsedSession.minutes);
+    setSeconds(parsedSession.seconds);
+    setSessionState(parsedSession.sessionState);
+    setFocusTime(parsedSession.focusTime);
 
-        if (seconds === 0) {
 
-          if (minutes === 0) {
 
-            clearInterval(timer);
-            setIsRunning(false);
+  }
 
-          } else {
+}, []);
 
-            setMinutes(minutes - 1);
-            setSeconds(59);
-
-          }
-
-        }
-
-      }, 1000);
-
-    }
-
-    return () => clearInterval(timer);
-
-  }, [seconds, minutes, sessionState]);
   const deviceLabel =
     deviceType === "mobile"
       ? "Mobile"
       : deviceType === "tablet"
         ? "Tablet"
         : "Desktop";
-  // useEffect(() => {
 
-  //   toast.success(`Logged in on ${deviceLabel}`, {
-  //     id: "device-login-toast",
-  //   });
-
-  // }, []);
-  // const user = JSON.parse(localStorage.getItem("user"));
-  // console.log("Current User from LocalStorage:", user);
-  // const userName =
-  //   user?.fullName ||
-  //   user?.name ||
-  //   "User";
   const hour = new Date().getHours();
 
   let greetingText = "";
@@ -143,6 +121,33 @@ const [randomGreeting] = useState(
 const [randomEmoji] = useState(
   emojis[Math.floor(Math.random() * emojis.length)]
 );
+usePomodoroTimer({
+  sessionState,
+  setSessionState,
+  setIsRunning,
+  setMinutes,
+  setSeconds,
+});
+useEffect(() => {
+
+  const sessionData = {
+    minutes,
+    seconds,
+    sessionState,
+    focusTime,
+  };
+
+  localStorage.setItem(
+    "nexa-session",
+    JSON.stringify(sessionData)
+  );
+
+}, [
+  minutes,
+  seconds,
+  sessionState,
+  focusTime,
+]);
   const sidebarItems = [
     {
       name: "Dashboard",
@@ -817,8 +822,16 @@ const [randomEmoji] = useState(
   setSeconds={setSeconds}
   focusTime={focusTime}
   setFocusTime={setFocusTime}
+  customHours={customHours}
+setCustomHours={setCustomHours}
+customMinutes={customMinutes}
+setCustomMinutes={setCustomMinutes}
 breakTime={breakTime}
 setBreakTime={setBreakTime}
+
+showCustomFocusInput={showCustomFocusInput}
+setShowCustomFocusInput={setShowCustomFocusInput}
+
 theme={theme}
 />
 
