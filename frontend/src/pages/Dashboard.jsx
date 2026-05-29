@@ -36,6 +36,7 @@ function Dashboard() {
 const [customHours, setCustomHours] = useState(0);
 const [customMinutes, setCustomMinutes] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
+  const [breakCount, setBreakCount] = useState(1);
   const [mode, setMode] = useState("focus");
   const [sessionState, setSessionState] = useState("idle");
 const [stopAttempts, setStopAttempts] = useState(0);
@@ -43,6 +44,7 @@ const [showStopModal, setShowStopModal] = useState(false);
 const [showSessionModal, setShowSessionModal] = useState(false);
 const [selectedCategory, setSelectedCategory] = useState("Study");
 const [showCustomFocusInput, setShowCustomFocusInput] = useState(false);
+const [timerType, setTimerType] = useState("preset");
 const stopMessages = [
   "You were building momentum. Continue a little longer.",
   "Discipline is staying focused when distraction feels easier.",
@@ -828,10 +830,13 @@ customMinutes={customMinutes}
 setCustomMinutes={setCustomMinutes}
 breakTime={breakTime}
 setBreakTime={setBreakTime}
+breakCount={breakCount}
+setBreakCount={setBreakCount}
 
 showCustomFocusInput={showCustomFocusInput}
 setShowCustomFocusInput={setShowCustomFocusInput}
-
+timerType={timerType}
+setTimerType={setTimerType}
 theme={theme}
 />
 
