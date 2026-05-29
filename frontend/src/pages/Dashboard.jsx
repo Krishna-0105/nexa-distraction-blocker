@@ -3,6 +3,7 @@ import PomodoroCard from "../dashboard/PomodoroCard";
 import SessionCategories from "../dashboard/SessionCategories";
 import SessionSetupModal from "../dashboard/SessionSetupModal";
 import usePomodoroTimer from "../hooks/usePomodoroTimer";
+import useBreakManager from "../hooks/useBreakManager";
 import {
   Coins,
   Monitor,
@@ -33,23 +34,37 @@ function Dashboard() {
   const [isRunning, setIsRunning] = useState(false);
   const [focusTime, setFocusTime] = useState(25);
 
-const [customHours, setCustomHours] = useState(0);
-const [customMinutes, setCustomMinutes] = useState(25);
+  const [customHours, setCustomHours] = useState(0);
+  const [customMinutes, setCustomMinutes] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
   const [breakCount, setBreakCount] = useState(1);
   const [mode, setMode] = useState("focus");
+  const [breaksRemaining, setBreaksRemaining] = useState(1);
+  const [savedFocusMinutes, setSavedFocusMinutes] = useState(0);
+  const [savedFocusSeconds, setSavedFocusSeconds] = useState(0);
+  const [isOnBreak, setIsOnBreak] = useState(false);
+  const handleEndBreak = () => {
+    setMode("focus");
+    setIsOnBreak(false);
+
+    setMinutes(savedFocusMinutes);
+    setSeconds(savedFocusSeconds);
+
+    setSessionState("running");
+    setIsRunning(true);
+  };
   const [sessionState, setSessionState] = useState("idle");
-const [stopAttempts, setStopAttempts] = useState(0);
-const [showStopModal, setShowStopModal] = useState(false);
-const [showSessionModal, setShowSessionModal] = useState(false);
-const [selectedCategory, setSelectedCategory] = useState("Study");
-const [showCustomFocusInput, setShowCustomFocusInput] = useState(false);
-const [timerType, setTimerType] = useState("preset");
-const stopMessages = [
-  "You were building momentum. Continue a little longer.",
-  "Discipline is staying focused when distraction feels easier.",
-  "Your future self will thank you for finishing this session.",
-];
+  const [stopAttempts, setStopAttempts] = useState(0);
+  const [showStopModal, setShowStopModal] = useState(false);
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Study");
+  const [showCustomFocusInput, setShowCustomFocusInput] = useState(false);
+  const [timerType, setTimerType] = useState("preset");
+  const stopMessages = [
+    "You were building momentum. Continue a little longer.",
+    "Discipline is staying focused when distraction feels easier.",
+    "Your future self will thank you for finishing this session.",
+  ];
   useEffect(() => {
 
     const handleResize = () => {
@@ -65,22 +80,22 @@ const stopMessages = [
   }, []);
   useEffect(() => {
 
-  const savedSession = localStorage.getItem("nexa-session");
+    const savedSession = localStorage.getItem("nexa-session");
 
-  if (savedSession) {
+    if (savedSession) {
 
-    const parsedSession = JSON.parse(savedSession);
+      const parsedSession = JSON.parse(savedSession);
 
-    setMinutes(parsedSession.minutes);
-    setSeconds(parsedSession.seconds);
-    setSessionState(parsedSession.sessionState);
-    setFocusTime(parsedSession.focusTime);
+      setMinutes(parsedSession.minutes);
+      setSeconds(parsedSession.seconds);
+      setSessionState(parsedSession.sessionState);
+      setFocusTime(parsedSession.focusTime);
 
 
 
-  }
+    }
 
-}, []);
+  }, []);
 
   const deviceLabel =
     deviceType === "mobile"
@@ -116,40 +131,77 @@ const stopMessages = [
 
   const emojis = ["🌿", "✨", "🚀", "🍃", "🌙"];
 
-const [randomGreeting] = useState(
-  greetings[Math.floor(Math.random() * greetings.length)]
-);
+  const [randomGreeting] = useState(
+    greetings[Math.floor(Math.random() * greetings.length)]
+  );
 
-const [randomEmoji] = useState(
-  emojis[Math.floor(Math.random() * emojis.length)]
-);
-usePomodoroTimer({
-  sessionState,
-  setSessionState,
-  setIsRunning,
-  setMinutes,
-  setSeconds,
-});
-useEffect(() => {
+  const [randomEmoji] = useState(
+    emojis[Math.floor(Math.random() * emojis.length)]
+  );
+  usePomodoroTimer({
+    mode,
+    sessionState,
+    setSessionState,
+    setIsRunning,
+    setMinutes,
+    setSeconds,
+  });
+  const handleStartBreak = () => {
+    const breakData = startBreak(
+      minutes,
+      seconds
+    );
 
-  const sessionData = {
+    if (breakData) {
+      setSavedFocusMinutes(
+        breakData.savedMinutes
+      );
+
+      setSavedFocusSeconds(
+        breakData.savedSeconds
+      );
+      setIsOnBreak(true);
+    }
+  };
+  const { startBreak } = useBreakManager({
+    mode,
+    sessionState,
+
+    breakTime,
+    breaksRemaining,
+    setBreaksRemaining,
+
+    setMode,
+    setMinutes,
+    setSeconds,
+
+    savedFocusMinutes,
+    savedFocusSeconds,
+
+    setSessionState,
+    setIsRunning,
+    setIsOnBreak,
+  });
+  useEffect(() => {
+
+    const sessionData = {
+      minutes,
+      seconds,
+      sessionState,
+      focusTime,
+    };
+
+    localStorage.setItem(
+      "nexa-session",
+      JSON.stringify(sessionData)
+    );
+
+  }, [
     minutes,
     seconds,
     sessionState,
     focusTime,
-  };
-
-  localStorage.setItem(
-    "nexa-session",
-    JSON.stringify(sessionData)
-  );
-
-}, [
-  minutes,
-  seconds,
-  sessionState,
-  focusTime,
-]);
+  ]);
   const sidebarItems = [
     {
       name: "Dashboard",
@@ -431,16 +483,16 @@ useEffect(() => {
 
           <div
             className={`flex items-center p-1 rounded-xl border transition-all ${theme === "dark"
-                ? "bg-[#111827] border-[#1f2937]"
-                : "bg-white border-[#e5ece7]"
+              ? "bg-[#111827] border-[#1f2937]"
+              : "bg-white border-[#e5ece7]"
               }`}
           >
 
             <button
               onClick={() => setTheme("light")}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${theme === "light"
-                  ? "bg-[#f3f7f4] text-[#1f2937]"
-                  : "text-slate-400"
+                ? "bg-[#f3f7f4] text-[#1f2937]"
+                : "text-slate-400"
                 }`}
             >
               Light
@@ -449,8 +501,8 @@ useEffect(() => {
             <button
               onClick={() => setTheme("dark")}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${theme === "dark"
-                  ? "bg-[#1f2937] text-white"
-                  : "text-slate-400"
+                ? "bg-[#1f2937] text-white"
+                : "text-slate-400"
                 }`}
             >
               Dark
@@ -539,25 +591,29 @@ useEffect(() => {
 
         </div>
         {/* Dashboard Grid */}
-        
+
         <div className="mt-8 grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-          
-<PomodoroCard
-  minutes={minutes}
-  seconds={seconds}
-  sessionState={sessionState}
-  setSessionState={setSessionState}
-  setIsRunning={setIsRunning}
-  stopAttempts={stopAttempts}
-  setStopAttempts={setStopAttempts}
-  focusTime={focusTime}
-  setMinutes={setMinutes}
-  setSeconds={setSeconds}
-  stopMessages={stopMessages}
-  setShowStopModal={setShowStopModal}
-  setShowSessionModal={setShowSessionModal}
-/>
+
+          <PomodoroCard
+            minutes={minutes}
+            seconds={seconds}
+            sessionState={sessionState}
+            setSessionState={setSessionState}
+            setIsRunning={setIsRunning}
+            stopAttempts={stopAttempts}
+            setStopAttempts={setStopAttempts}
+            focusTime={focusTime}
+            setMinutes={setMinutes}
+            setSeconds={setSeconds}
+            stopMessages={stopMessages}
+            setShowStopModal={setShowStopModal}
+            setShowSessionModal={setShowSessionModal}
+            handleStartBreak={handleStartBreak}
+            breaksRemaining={breaksRemaining}
+            mode={mode}
+            handleEndBreak={handleEndBreak}
+          />
           {/* Stats Cards */}
           <div className="xl:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
 
@@ -618,8 +674,8 @@ useEffect(() => {
           {/* Active Websites */}
           <div
             className={`rounded-3xl border p-5 shadow-sm transition-all ${theme === "dark"
-                ? "bg-[#111827] border-[#1f2937]"
-                : "bg-white border-[#e6ece8]"
+              ? "bg-[#111827] border-[#1f2937]"
+              : "bg-white border-[#e6ece8]"
               }`}
           >
 
@@ -627,8 +683,8 @@ useEffect(() => {
 
               <h2
                 className={`text-lg font-semibold ${theme === "dark"
-                    ? "text-white"
-                    : "text-[#1f2937]"
+                  ? "text-white"
+                  : "text-[#1f2937]"
                   }`}
               >
                 Active Blocks
@@ -649,8 +705,8 @@ useEffect(() => {
                   <div
                     key={index}
                     className={`flex items-center justify-between rounded-2xl px-4 py-3 ${theme === "dark"
-                        ? "bg-[#0f172a]"
-                        : "bg-[#f8fbf9]"
+                      ? "bg-[#0f172a]"
+                      : "bg-[#f8fbf9]"
                       }`}
                   >
 
@@ -658,8 +714,8 @@ useEffect(() => {
 
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center font-semibold text-sm ${theme === "dark"
-                            ? "bg-[#1f2937] text-white"
-                            : "bg-[#f3f7f4] text-[#1f2937]"
+                          ? "bg-[#1f2937] text-white"
+                          : "bg-[#f3f7f4] text-[#1f2937]"
                           }`}
                       >
                         {site.icon}
@@ -667,8 +723,8 @@ useEffect(() => {
 
                       <p
                         className={`font-medium ${theme === "dark"
-                            ? "text-white"
-                            : "text-[#1f2937]"
+                          ? "text-white"
+                          : "text-[#1f2937]"
                           }`}
                       >
                         {site.name}
@@ -693,8 +749,8 @@ useEffect(() => {
       {/* Mobile Bottom Navigation */}
       <div
         className={`md:hidden fixed bottom-0 left-0 right-0 border-t px-2 py-2 flex items-center justify-around z-50 ${theme === "dark"
-            ? "bg-[#111827] border-[#1f2937]"
-            : "bg-white border-[#e5ece7]"
+          ? "bg-[#111827] border-[#1f2937]"
+          : "bg-white border-[#e5ece7]"
           }`}
       >
         {mobileNavItems.map((item, index) => {
@@ -704,12 +760,12 @@ useEffect(() => {
             <button
               key={index}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${item.name === "Home"
-                  ? theme === "dark"
-                    ? "bg-[#1f2937] text-[#34d399]"
-                    : "bg-[#e8f5ee] text-[#119b61]"
-                  : theme === "dark"
-                    ? "text-slate-400"
-                    : "text-slate-500"
+                ? theme === "dark"
+                  ? "bg-[#1f2937] text-[#34d399]"
+                  : "bg-[#e8f5ee] text-[#119b61]"
+                : theme === "dark"
+                  ? "text-slate-400"
+                  : "text-slate-500"
                 }`}
             >
               <Icon size={22} />
@@ -723,124 +779,122 @@ useEffect(() => {
       </div>
       {showStopModal && (
 
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
 
-    <div
-      className={`w-full max-w-md rounded-3xl p-6 shadow-2xl transition-all ${
-        theme === "dark"
-          ? "bg-[#111827]"
-          : "bg-white"
-      }`}
-    >
-
-      <div className="flex flex-col items-center text-center">
-
-        <div className="text-5xl mb-4">
-          🌿
-        </div>
-
-        <h2
-          className={`text-2xl font-bold ${
-            theme === "dark"
-              ? "text-white"
-              : "text-[#1f2937]"
-          }`}
-        >
-
-          End Focus Session?
-
-        </h2>
-
-        <p
-          className={`mt-3 text-sm leading-relaxed ${
-            theme === "dark"
-              ? "text-slate-400"
-              : "text-slate-500"
-          }`}
-        >
-
-          {stopMessages[stopAttempts]}
-
-        </p>
-
-        <div className="mt-6 flex gap-3 w-full">
-
-          <button
-            onClick={() => {
-              setShowStopModal(false);
-            }}
-            className="flex-1 bg-[#119b61] hover:bg-[#0f8a57] text-white py-3 rounded-2xl font-semibold transition-all"
+          <div
+            className={`w-full max-w-md rounded-3xl p-6 shadow-2xl transition-all ${theme === "dark"
+                ? "bg-[#111827]"
+                : "bg-white"
+              }`}
           >
 
-            Continue Focus
+            <div className="flex flex-col items-center text-center">
 
-          </button>
+              <div className="text-5xl mb-4">
+                🌿
+              </div>
 
-          <button
-            onClick={() => {
+              <h2
+                className={`text-2xl font-bold ${theme === "dark"
+                    ? "text-white"
+                    : "text-[#1f2937]"
+                  }`}
+              >
 
-              setShowStopModal(false);
+                End Focus Session?
 
-              if (stopAttempts < 2) {
+              </h2>
 
-                setStopAttempts(stopAttempts + 1);
+              <p
+                className={`mt-3 text-sm leading-relaxed ${theme === "dark"
+                    ? "text-slate-400"
+                    : "text-slate-500"
+                  }`}
+              >
 
-              } else {
+                {stopMessages[stopAttempts]}
 
-                setSessionState("idle");
-                setIsRunning(false);
-                setMinutes(focusTime);
-                setSeconds(0);
-                setStopAttempts(0);
+              </p>
 
-              }
+              <div className="mt-6 flex gap-3 w-full">
 
-            }}
-            className="flex-1 bg-[#ef4444] hover:bg-[#dc2626] text-white py-3 rounded-2xl font-semibold transition-all"
-          >
+                <button
+                  onClick={() => {
+                    setShowStopModal(false);
+                  }}
+                  className="flex-1 bg-[#119b61] hover:bg-[#0f8a57] text-white py-3 rounded-2xl font-semibold transition-all"
+                >
 
-            Stop Anyway
+                  Continue Focus
 
-          </button>
+                </button>
+
+                <button
+                  onClick={() => {
+
+                    setShowStopModal(false);
+
+                    if (stopAttempts < 2) {
+
+                      setStopAttempts(stopAttempts + 1);
+
+                    } else {
+
+                      setSessionState("idle");
+                      setIsRunning(false);
+                      setMinutes(focusTime);
+                      setSeconds(0);
+                      setStopAttempts(0);
+
+                    }
+
+                  }}
+                  className="flex-1 bg-[#ef4444] hover:bg-[#dc2626] text-white py-3 rounded-2xl font-semibold transition-all"
+                >
+
+                  Stop Anyway
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
 
-      </div>
+      )}
+      {showSessionModal && (
 
-    </div>
+        <SessionSetupModal
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          setShowSessionModal={setShowSessionModal}
+          setSessionState={setSessionState}
+          setIsRunning={setIsRunning}
+          setMinutes={setMinutes}
+          setSeconds={setSeconds}
+          focusTime={focusTime}
+          setFocusTime={setFocusTime}
+          customHours={customHours}
+          setCustomHours={setCustomHours}
+          customMinutes={customMinutes}
+          setCustomMinutes={setCustomMinutes}
+          breakTime={breakTime}
+          setBreakTime={setBreakTime}
+          breakCount={breakCount}
+          setBreakCount={setBreakCount}
+          setBreaksRemaining={setBreaksRemaining}
 
-  </div>
+          showCustomFocusInput={showCustomFocusInput}
+          setShowCustomFocusInput={setShowCustomFocusInput}
+          timerType={timerType}
+          setTimerType={setTimerType}
+          theme={theme}
+        />
 
-)}
-{showSessionModal && (
-
- <SessionSetupModal
-  selectedCategory={selectedCategory}
-  setSelectedCategory={setSelectedCategory}
-  setShowSessionModal={setShowSessionModal}
-  setSessionState={setSessionState}
-  setIsRunning={setIsRunning}
-  setMinutes={setMinutes}
-  setSeconds={setSeconds}
-  focusTime={focusTime}
-  setFocusTime={setFocusTime}
-  customHours={customHours}
-setCustomHours={setCustomHours}
-customMinutes={customMinutes}
-setCustomMinutes={setCustomMinutes}
-breakTime={breakTime}
-setBreakTime={setBreakTime}
-breakCount={breakCount}
-setBreakCount={setBreakCount}
-
-showCustomFocusInput={showCustomFocusInput}
-setShowCustomFocusInput={setShowCustomFocusInput}
-timerType={timerType}
-setTimerType={setTimerType}
-theme={theme}
-/>
-
-)}
+      )}
     </div>
 
   );

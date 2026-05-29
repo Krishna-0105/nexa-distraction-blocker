@@ -19,6 +19,7 @@ function SessionSetupModal({
   theme,
   breakCount,
   setBreakCount,
+  setBreaksRemaining,
   showCustomFocusInput,
   setShowCustomFocusInput,
   timerType,
@@ -405,6 +406,7 @@ function SessionSetupModal({
 setFocusTime(sessionDuration);
 setMinutes(sessionDuration);
               setSeconds(0);
+              setBreaksRemaining(breakCount);
             }}
             className="mt-6 w-full bg-[#119b61] hover:bg-[#0f8a57] text-white py-3 rounded-2xl font-semibold transition-all"
           >

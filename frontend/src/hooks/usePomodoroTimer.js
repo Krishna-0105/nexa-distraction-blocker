@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
 function usePomodoroTimer({
+  mode,
   sessionState,
   setSessionState,
   setIsRunning,
@@ -17,7 +18,10 @@ function usePomodoroTimer({
       clearInterval(intervalRef.current);
     }
 
-    if (sessionState === "running") {
+if (
+  sessionState === "running" &&
+  mode === "focus"
+) {
 
       intervalRef.current = setInterval(() => {
 
@@ -58,8 +62,7 @@ function usePomodoroTimer({
     return () => {
       clearInterval(intervalRef.current);
     };
-
-  }, [sessionState]);
+}, [sessionState, mode]); 
 
 }
 

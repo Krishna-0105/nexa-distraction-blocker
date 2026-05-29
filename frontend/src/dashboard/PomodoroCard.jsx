@@ -12,6 +12,10 @@ function PomodoroCard({
     stopMessages,
     setShowStopModal,
     setShowSessionModal,
+    handleStartBreak,
+    breaksRemaining,
+    mode,
+    handleEndBreak,
 }) {
 
     return (
@@ -21,8 +25,17 @@ function PomodoroCard({
             <div className="bg-white border border-[#e6ece8] rounded-3xl p-6 shadow-sm">
 
                 <p className="text-sm text-slate-500 font-medium">
-                    Current Focus Session
+                    {sessionState === "idle"
+                        ? "🎯 Ready to Focus"
+                        : mode === "break"
+                            ? "☕ Break Time"
+                            : "🎯 Current Focus Session"}
                 </p>
+                {(sessionState === "running" || mode === "break") && (
+                    <p className="mt-2 text-sm text-slate-500">
+                        ☕ Breaks Left: {breaksRemaining}
+                    </p>
+                )}
 
                 <div className="mt-6 flex items-center justify-center">
 
@@ -53,7 +66,17 @@ function PomodoroCard({
                         </button>
 
                     )}
-                    {sessionState === "running" && (
+                    {mode === "break" && (
+                        <div className="mt-6">
+                            <button
+                                onClick={handleEndBreak}
+                                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] transition-all text-white font-semibold py-3 rounded-2xl cursor-pointer"
+                            >
+                                ☕ End Break
+                            </button>
+                        </div>
+                    )}
+                    {sessionState === "running" && mode !== "break" && (
 
                         <div className="flex gap-3">
 
@@ -68,7 +91,12 @@ function PomodoroCard({
                                 Pause
 
                             </button>
-
+                            <button
+                                onClick={handleStartBreak}
+                                className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] transition-all text-white font-semibold py-3 rounded-2xl cursor-pointer"
+                            >
+                                Break
+                            </button>
                             <button
                                 onClick={() => {
 
