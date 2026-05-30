@@ -1,4 +1,5 @@
 function PomodoroCard({
+    theme,
     minutes,
     seconds,
     sessionState,
@@ -16,32 +17,62 @@ function PomodoroCard({
     breaksRemaining,
     mode,
     handleEndBreak,
+
 }) {
 
     return (
 
         <div>
             {/* Focus Card */}
-            <div className="bg-white border border-[#e6ece8] rounded-3xl p-6 shadow-sm">
+            <div
+  className={`rounded-3xl p-6 shadow-sm border ${
+    theme === "dark"
+      ? "bg-[#111827] border-[#1f2937]"
+      : "bg-white border-[#e6ece8]"
+  }`}
+>
 
-                <p className="text-sm text-slate-500 font-medium">
-                    {sessionState === "idle"
-                        ? "🎯 Ready to Focus"
-                        : mode === "break"
-                            ? "☕ Break Time"
-                            : "🎯 Current Focus Session"}
-                </p>
-                {(sessionState === "running" || mode === "break") && (
-                    <p className="mt-2 text-sm text-slate-500">
-                        ☕ Breaks Left: {breaksRemaining}
-                    </p>
-                )}
+                <div className="flex items-center justify-between">
+
+    <p
+  className={`text-lg font-semibold ${
+    theme === "dark"
+      ? "text-slate-100"
+      : "text-slate-700"
+  }`}
+>
+        {sessionState === "idle"
+            ? "🎯 Ready to Focus"
+            : mode === "break"
+                ? "☕ Break Time"
+                : "🎯 Focus Session"}
+    </p>
+
+    {(sessionState === "running" || mode === "break") && (
+        <span
+  className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
+    theme === "dark"
+      ? "bg-[#1f2937] text-[#34d399]"
+      : "bg-[#ecfdf5] text-[#059669]"
+  }`}
+>
+            ☕ {breaksRemaining} Left
+        </span>
+    )}
+
+</div>
 
                 <div className="mt-6 flex items-center justify-center">
 
-                    <div className="w-[140px] h-[140px] rounded-full border-[8px] border-[#119b61] flex items-center justify-center">
+                    <div className="w-[180px] h-[180px] rounded-full border-[10px] border-[#119b61] shadow-[0_0_25px_rgba(17,155,97,0.25)] flex items-center justify-center">
 
-                        <h1 className="text-3xl font-bold text-[#1f2937]">
+                        <h1
+  className={`text-5xl font-bold tracking-tight ${
+    theme === "dark"
+      ? "text-white"
+      : "text-[#1f2937]"
+  }`}
+>
                             {String(minutes).padStart(2, "0")}:
                             {String(seconds).padStart(2, "0")}
                         </h1>
@@ -76,7 +107,9 @@ function PomodoroCard({
                             </button>
                         </div>
                     )}
-                    {sessionState === "running" && mode !== "break" && (
+                    {(sessionState === "running" ||
+  sessionState === "completed") &&
+  mode !== "break" && (
 
                         <div className="flex gap-3">
 

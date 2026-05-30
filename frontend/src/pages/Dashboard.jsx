@@ -4,6 +4,7 @@ import SessionCategories from "../dashboard/SessionCategories";
 import SessionSetupModal from "../dashboard/SessionSetupModal";
 import usePomodoroTimer from "../hooks/usePomodoroTimer";
 import useBreakManager from "../hooks/useBreakManager";
+
 import {
   Coins,
   Monitor,
@@ -20,6 +21,10 @@ import {
   Settings,
   Home,
   Menu,
+  Clock3,
+
+  CheckCircle2,
+  Flame
 } from "lucide-react";
 import { getDeviceType } from "../utils/device";
 
@@ -28,7 +33,9 @@ import { getDeviceType } from "../utils/device";
 function Dashboard() {
 
   const [deviceType, setDeviceType] = useState(getDeviceType());
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("nexa-theme") || "light";
+  });
   const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -202,6 +209,12 @@ function Dashboard() {
     sessionState,
     focusTime,
   ]);
+  useEffect(() => {
+    localStorage.setItem(
+      "nexa-theme",
+      theme
+    );
+  }, [theme]);
   const sidebarItems = [
     {
       name: "Dashboard",
@@ -390,7 +403,7 @@ function Dashboard() {
             }`}
         >
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 mb-5">
 
             <Monitor
               size={18}
@@ -549,13 +562,23 @@ function Dashboard() {
             <div className="flex items-center gap-3">
 
               {/* Coins */}
-              <div className="bg-white border border-[#e6ece8] px-4 py-2 rounded-2xl shadow-sm">
+              <div
+                className={`px-4 py-2 rounded-2xl shadow-sm border ${theme === "dark"
+                  ? "bg-[#111827] border-[#2a374d]"
+                  : "bg-white border-[#e6ece8]"
+                  }`}
+              >
 
                 <div className="flex items-center gap-2">
 
                   <Coins size={18} className="text-[#119b61]" />
 
-                  <span className="font-bold text-[#1f2937]">
+                  <span
+                    className={`font-bold ${theme === "dark"
+                      ? "text-white"
+                      : "text-[#1f2937]"
+                      }`}
+                  >
                     128
                   </span>
 
@@ -573,7 +596,13 @@ function Dashboard() {
 
             <div className="bg-white border border-[#e6ece8] px-5 py-3 rounded-2xl shadow-sm">
 
-              <p className="text-xs text-slate-500">
+              <p
+  className={`text-xs ${
+    theme === "dark"
+      ? "text-slate-400"
+      : "text-slate-500"
+  }`}
+>
                 Coins
               </p>
 
@@ -596,6 +625,7 @@ function Dashboard() {
 
 
           <PomodoroCard
+            theme={theme}
             minutes={minutes}
             seconds={seconds}
             sessionState={sessionState}
@@ -617,49 +647,146 @@ function Dashboard() {
           {/* Stats Cards */}
           <div className="xl:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            <div className="bg-white border border-[#e6ece8] rounded-2xl p-4 shadow-sm">
+            <div
+              className={`rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border ${theme === "dark"
+                ? "bg-[#111827] border-[#1f2937]"
+                : "bg-white border-[#e6ece8]"
+                }`}
+            >
 
-              <p className="text-xs text-slate-500">
-                Focus Time
-              </p>
+              <div className="flex items-center gap-2">
 
-              <h2 className="text-2xl font-bold mt-2 text-[#1f2937]">
+                <Clock3
+                  size={22}
+                  className="text-[#119b61]"
+                />
+
+                <p
+                  className={`text-lg font-semibold ${theme === "dark"
+                    ? "text-slate-300"
+                    : "text-slate-600"
+                    }`}
+                >
+                  Focus Time
+                </p>
+
+              </div>
+
+              <h2
+                className={`text-[32px] font-bold mt-3 ${theme === "dark"
+                  ? "text-white"
+                  : "text-[#1f2937]"
+                  }`}
+              >
                 4h 32m
               </h2>
 
             </div>
 
-            <div className="bg-white border border-[#e6ece8] rounded-2xl p-4 shadow-sm">
+            <div
+              className={`rounded-2xl p-5 shadow-sm border ${theme === "dark"
+                ? "bg-[#111827] border-[#1f2937]"
+                : "bg-white border-[#e6ece8]"
+                }`}
+            >
 
-              <p className="text-xs text-slate-500">
-                Sessions
-              </p>
+              <div className="flex items-center gap-2">
 
-              <h2 className="text-2xl font-bold mt-2 text-[#1f2937]">
+                <BarChart3
+                  size={22}
+                  className="text-violet-500"
+                />
+
+                <p
+                  className={`text-lg font-semibold ${theme === "dark"
+                    ? "text-slate-300"
+                    : "text-slate-600"
+                    }`}
+                >
+                  Sessions
+                </p>
+              </div>
+
+              <h2
+                className={`text-[32px] font-bold mt-3 ${theme === "dark"
+                  ? "text-white"
+                  : "text-[#1f2937]"
+                  }`}
+              >
                 6
               </h2>
 
             </div>
 
-            <div className="bg-white border border-[#e6ece8] rounded-2xl p-4 shadow-sm">
+            <div
+              className={`rounded-2xl p-5 shadow-sm border ${theme === "dark"
+                ? "bg-[#111827] border-[#1f2937]"
+                : "bg-white border-[#e6ece8]"
+                }`}
+            >
 
-              <p className="text-xs text-slate-500">
-                Tasks Done
-              </p>
+              <div className="flex items-center gap-2">
 
-              <h2 className="text-2xl font-bold mt-2 text-[#1f2937]">
+  <CheckCircle2
+    size={22}
+    className="text-blue-500"
+  />
+
+  <p
+    className={`text-lg font-semibold ${
+      theme === "dark"
+        ? "text-slate-300"
+        : "text-slate-600"
+    }`}
+  >
+    Tasks Done
+  </p>
+
+</div>
+
+              <h2
+                className={`text-[32px] font-bold mt-3 ${theme === "dark"
+                  ? "text-white"
+                  : "text-[#1f2937]"
+                  }`}
+              >
                 12
               </h2>
 
             </div>
 
-            <div className="bg-white border border-[#e6ece8] rounded-2xl p-4 shadow-sm">
+            <div
+              className={`rounded-2xl p-5 shadow-sm border ${theme === "dark"
+                ? "bg-[#111827] border-[#1f2937]"
+                : "bg-white border-[#e6ece8]"
+                }`}
+            >
 
-              <p className="text-xs text-slate-500">
-                Streak
-              </p>
+              <div className="flex items-center gap-2">
 
-              <h2 className="text-2xl font-bold mt-2 text-[#1f2937]">
+  <Flame
+    size={22}
+    className="text-orange-500"
+  />
+
+  <p
+    className={`text-lg font-semibold ${
+      theme === "dark"
+        ? "text-slate-300"
+        : "text-slate-600"
+    }`}
+  >
+    Streak
+  </p>
+
+</div>
+
+              <h2
+                className={`text-[32px] font-bold mt-3 ${theme === "dark"
+                  ? "text-white"
+                  : "text-[#1f2937]"
+                  }`}
+              >
                 7 Days
               </h2>
 
@@ -783,8 +910,8 @@ function Dashboard() {
 
           <div
             className={`w-full max-w-md rounded-3xl p-6 shadow-2xl transition-all ${theme === "dark"
-                ? "bg-[#111827]"
-                : "bg-white"
+              ? "bg-[#111827]"
+              : "bg-white"
               }`}
           >
 
@@ -796,8 +923,8 @@ function Dashboard() {
 
               <h2
                 className={`text-2xl font-bold ${theme === "dark"
-                    ? "text-white"
-                    : "text-[#1f2937]"
+                  ? "text-white"
+                  : "text-[#1f2937]"
                   }`}
               >
 
@@ -807,8 +934,8 @@ function Dashboard() {
 
               <p
                 className={`mt-3 text-sm leading-relaxed ${theme === "dark"
-                    ? "text-slate-400"
-                    : "text-slate-500"
+                  ? "text-slate-400"
+                  : "text-slate-500"
                   }`}
               >
 
