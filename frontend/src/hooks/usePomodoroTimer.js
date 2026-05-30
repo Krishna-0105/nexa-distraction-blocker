@@ -7,6 +7,7 @@ function usePomodoroTimer({
   setIsRunning,
   setMinutes,
   setSeconds,
+  setShowCompleteModal,
 }) {
 
   const intervalRef = useRef(null);
@@ -36,16 +37,17 @@ if (
           setMinutes((prevMinutes) => {
 
             // Timer completed
-            if (prevMinutes === 0) {
+           if (prevMinutes === 0) {
 
-              clearInterval(intervalRef.current);
+  clearInterval(intervalRef.current);
 
-              setSessionState("completed");
-              setIsRunning(false);
+  setSessionState("completed");
+  setIsRunning(false);
+  setShowCompleteModal(true);
 
-              return 0;
+  return 0;
 
-            }
+}
 
             return prevMinutes - 1;
 

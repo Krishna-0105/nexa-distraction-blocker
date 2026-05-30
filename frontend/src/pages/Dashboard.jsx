@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import PomodoroCard from "../dashboard/PomodoroCard";
 import SessionCategories from "../dashboard/SessionCategories";
 import SessionSetupModal from "../dashboard/SessionSetupModal";
+import SessionCompleteModal from "../dashboard/SessionCompleteModal";
+import inspirationData from "../data/inspirationData";
 import usePomodoroTimer from "../hooks/usePomodoroTimer";
 import useBreakManager from "../hooks/useBreakManager";
 
@@ -64,6 +66,25 @@ function Dashboard() {
   const [stopAttempts, setStopAttempts] = useState(0);
   const [showStopModal, setShowStopModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [selectedInspiration, setSelectedInspiration] = useState(
+  inspirationData[0]
+);
+useEffect(() => {
+
+  if (showCompleteModal) {
+
+    const randomIndex = Math.floor(
+      Math.random() * inspirationData.length
+    );
+
+    setSelectedInspiration(
+      inspirationData[randomIndex]
+    );
+
+  }
+
+}, [showCompleteModal]);
   const [selectedCategory, setSelectedCategory] = useState("Study");
   const [showCustomFocusInput, setShowCustomFocusInput] = useState(false);
   const [timerType, setTimerType] = useState("preset");
@@ -146,13 +167,14 @@ function Dashboard() {
     emojis[Math.floor(Math.random() * emojis.length)]
   );
   usePomodoroTimer({
-    mode,
-    sessionState,
-    setSessionState,
-    setIsRunning,
-    setMinutes,
-    setSeconds,
-  });
+  mode,
+  sessionState,
+  setSessionState,
+  setIsRunning,
+  setMinutes,
+  setSeconds,
+  setShowCompleteModal,
+});
   const handleStartBreak = () => {
     const breakData = startBreak(
       minutes,
@@ -1022,6 +1044,16 @@ function Dashboard() {
         />
 
       )}
+      {showCompleteModal && (
+
+  <SessionCompleteModal
+  isOpen={showCompleteModal}
+  onClose={() => setShowCompleteModal(false)}
+  theme={theme}
+  selectedInspiration={selectedInspiration}
+/>
+
+)}
     </div>
 
   );
